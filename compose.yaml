@@ -1,0 +1,18 @@
+services:
+  ldg:
+    build:
+      context: .
+    image: ldg:latest
+    container_name: ldg
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    networks:
+      - lee-net
+      - lee-net-1
+
+networks:
+  lee-net:
+    external: true
+  lee-net-1:
+    external: true
