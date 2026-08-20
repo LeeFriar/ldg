@@ -40,6 +40,17 @@ A breach includes accidental loss, destruction, alteration, unauthorised access 
 
 Before adopting a new email, cloud, payment, analytics or customer-management service, check what data it receives, where it is processed, its security, retention and contract terms. Update the Privacy Notice before beginning materially different processing. Non-essential website storage or tracking must not be enabled without reviewing PECR consent requirements.
 
+### Current email processor
+
+- Provider: OVHcloud.
+- Service: Zimbra email hosting.
+- Data involved: email addresses, message content, attachments, contact information and associated account/technical data.
+- Purpose: email hosting, delivery, security, spam filtering and service support.
+- Hosting location: France, within the European Economic Area.
+- Transfer basis: UK adequacy regulations for EEA countries.
+- Required records: retain the applicable OVHcloud service terms and data-processing terms; review the service location and subprocessors annually and whenever the service changes.
+- Access: protect the mailbox with a strong unique password and multi-factor authentication where available. Review recovery details and active sessions periodically.
+
 ## ICO fee
 
 Use the ICO registration self-assessment and review the result if business processing changes. Keep evidence of the assessment or registration.

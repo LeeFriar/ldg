@@ -12,6 +12,8 @@ grep -q 'lloyd@ldg-electrical.co.uk' public/index.html
 grep -q 'tel:+447342832300' public/index.html
 grep -q 'https://www.ldg-electrical.co.uk/' public/index.html
 grep -q 'Information Commissioner' public/privacy.html
+grep -q 'OVHcloud' public/privacy.html
+grep -q 'UK.*adequacy regulations' public/privacy.html
 grep -q 'does not set cookies' public/cookies.html
 ! grep -q 'fonts.googleapis.com' public/index.html
 grep -q 'listen 5000' nginx.conf
