@@ -16,7 +16,7 @@ The site runs in a container named `ldg` at [http://localhost:5000](http://local
 
 ## Deployment
 
-`Jenkinsfile` runs static checks, builds and smoke-tests the image, then deploys `main` using Docker Compose. The included Compose wrapper supports both the modern `docker compose` plugin and legacy `docker-compose`. Configure the GitHub repository webhook to point to:
+`Jenkinsfile` runs static checks, builds and smoke-tests the image, then deploys `main` directly with Docker. Direct container replacement avoids the `ContainerConfig` recreation bug in legacy Docker Compose 1.29 while still attaching both required networks. The included Compose wrapper remains available for local operation and supports both the modern `docker compose` plugin and legacy `docker-compose`. Configure the GitHub repository webhook to point to:
 
 ```text
 https://YOUR-JENKINS-HOST/github-webhook/

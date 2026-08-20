@@ -29,7 +29,23 @@ pipeline {
                 sh '''
                     docker network inspect lee-net >/dev/null 2>&1 || docker network create lee-net
                     docker network inspect lee-net-1 >/dev/null 2>&1 || docker network create lee-net-1
-                    ./scripts/compose.sh up -d --remove-orphans
+
+                    # docker-compose 1.29 cannot recreate images produced by
+                    # newer Docker engines (KeyError: ContainerConfig). This
+                    # stateless service is replaced directly and predictably.
+                    docker rm -f ldg 2>/dev/null || true
+                    stale_ids=$(docker ps -aq --filter label=com.docker.compose.service=ldg)
+                    if [ -n "$stale_ids" ]; then
+                      docker rm -f $stale_ids
+                    fi
+
+                    docker run -d \
+                      --name ldg \
+                      --restart unless-stopped \
+                      --network lee-net \
+                      -p 5000:5000 \
+                      ldg:latest
+                    docker network connect lee-net-1 ldg
                     docker image prune -f
                 '''
             }
