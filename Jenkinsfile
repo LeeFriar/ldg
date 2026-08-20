@@ -7,7 +7,7 @@ pipeline {
             steps { sh 'chmod +x scripts/test.sh && ./scripts/test.sh' }
         }
         stage('Build') {
-            steps { sh 'docker compose build --pull' }
+            steps { sh 'chmod +x scripts/compose.sh && ./scripts/compose.sh build --pull' }
         }
         stage('Container test') {
             steps {
@@ -29,7 +29,7 @@ pipeline {
                 sh '''
                     docker network inspect lee-net >/dev/null 2>&1 || docker network create lee-net
                     docker network inspect lee-net-1 >/dev/null 2>&1 || docker network create lee-net-1
-                    docker compose up -d --remove-orphans
+                    ./scripts/compose.sh up -d --remove-orphans
                     docker image prune -f
                 '''
             }
