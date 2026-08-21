@@ -9,7 +9,8 @@ test -f public/cookies.html
 test -x scripts/compose.sh || chmod +x scripts/compose.sh
 grep -q 'Lloyd Garland' public/index.html
 grep -q 'lloyd@ldg-electrical.co.uk' public/index.html
-grep -q 'tel:+447342832300' public/index.html
+grep -q 'tel:+447587869215' public/index.html
+! grep -R -q '07342 832300\|+447342832300' public
 grep -q 'https://www.ldg-electrical.co.uk/' public/index.html
 grep -q 'Information Commissioner' public/privacy.html
 grep -q 'OVHcloud' public/privacy.html

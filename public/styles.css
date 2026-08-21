@@ -16,3 +16,6 @@ body{font-family:"Segoe UI",Arial,sans-serif}.legal-main{background:var(--cream)
 
 /* Clear the fixed navigation and separate legal content from the footer. */
 .legal-main{padding-top:185px;padding-bottom:145px}.legal-header{scroll-margin-top:120px}@media(max-width:620px){.legal-main{padding-top:135px;padding-bottom:105px}}
+
+/* Keep desktop footer content on one compact horizontal line. */
+@media(min-width:901px){.footer-grid{grid-template-columns:1.2fr 1.15fr .65fr .85fr;align-items:end}.footer-legal{align-items:flex-start}.copyright{align-self:end}}
