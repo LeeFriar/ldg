@@ -35,6 +35,19 @@ function openWorkImage(photo) {
   workDialog.showModal();
 }
 
+document.querySelectorAll('[data-gallery-detail]').forEach((card) => {
+  card.addEventListener('click', (event) => {
+    if (!workDialog?.showModal) return;
+    event.preventDefault();
+    const image = card.querySelector('img');
+    openWorkImage({
+      detail_url: card.dataset.galleryDetail,
+      caption: card.dataset.galleryCaption,
+      alt_text: image?.alt || '',
+    });
+  });
+});
+
 workDialog?.querySelector('.dialog-close')?.addEventListener('click', () => workDialog.close());
 workDialog?.addEventListener('click', (event) => {
   if (event.target === workDialog) workDialog.close();

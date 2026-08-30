@@ -20,6 +20,8 @@ grep -q 'tel:+447587869215' public/index.html
 grep -q 'https://www.ldg-electrical.co.uk/' public/index.html
 grep -q '<span><b>NVQ</b> Level 3</span><span><b>ECS</b> Gold Card</span><span><b>18th</b> Edition</span>' public/index.html
 grep -q 'id="work"' public/index.html
+grep -q '/work/thumb/kitchen-electrical-accessories.webp' public/index.html
+grep -q 'data-gallery-detail' public/index.html
 ! grep -q 'id="feedback"' public/index.html
 ! grep -q 'feedback-grid' public/index.html
 ! grep -q 'loadFeedback' public/script.js
