@@ -22,6 +22,9 @@ grep -q '<span><b>NVQ</b> Level 3</span><span><b>ECS</b> Gold Card</span><span><
 grep -q 'id="work"' public/index.html
 grep -q '/work/thumb/kitchen-electrical-accessories.webp' public/index.html
 grep -q 'data-gallery-detail' public/index.html
+grep -q 'id="gallery-previous"' public/index.html
+grep -q 'id="gallery-next"' public/index.html
+grep -q 'grid-auto-columns:calc((100% - 42px)/4)' public/styles.css
 ! grep -q 'id="feedback"' public/index.html
 ! grep -q 'feedback-grid' public/index.html
 ! grep -q 'loadFeedback' public/script.js

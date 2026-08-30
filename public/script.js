@@ -27,6 +27,8 @@ const galleryGrid = document.querySelector('#gallery-grid');
 const workDialog = document.querySelector('#work-dialog');
 const dialogImage = document.querySelector('#work-dialog-image');
 const dialogCaption = document.querySelector('#work-dialog-caption');
+const galleryPrevious = document.querySelector('#gallery-previous');
+const galleryNext = document.querySelector('#gallery-next');
 
 function openWorkImage(photo) {
   dialogImage.src = photo.detail_url;
@@ -48,6 +50,26 @@ document.querySelectorAll('[data-gallery-detail]').forEach((card) => {
   });
 });
 
+function updateGalleryControls() {
+  if (!galleryGrid || !galleryPrevious || !galleryNext) return;
+  const maximum = galleryGrid.scrollWidth - galleryGrid.clientWidth;
+  galleryPrevious.disabled = galleryGrid.scrollLeft < 4;
+  galleryNext.disabled = maximum < 4 || galleryGrid.scrollLeft >= maximum - 4;
+}
+
+function moveGallery(direction) {
+  const card = galleryGrid?.querySelector('.gallery-card');
+  if (!card) return;
+  const gap = Number.parseFloat(getComputedStyle(galleryGrid).columnGap) || 14;
+  galleryGrid.scrollBy({ left: direction * (card.getBoundingClientRect().width + gap), behavior: 'smooth' });
+}
+
+galleryPrevious?.addEventListener('click', () => moveGallery(-1));
+galleryNext?.addEventListener('click', () => moveGallery(1));
+galleryGrid?.addEventListener('scroll', updateGalleryControls, { passive: true });
+window.addEventListener('resize', updateGalleryControls);
+updateGalleryControls();
+
 workDialog?.querySelector('.dialog-close')?.addEventListener('click', () => workDialog.close());
 workDialog?.addEventListener('click', (event) => {
   if (event.target === workDialog) workDialog.close();
@@ -64,7 +86,7 @@ async function loadGallery() {
     if (!response.ok) throw new Error('Gallery unavailable');
     const photos = await response.json();
     if (!photos.length) return;
-    galleryGrid.replaceChildren(...photos.map((photo) => {
+    const cards = photos.map((photo) => {
       const button = document.createElement('button');
       button.className = 'gallery-card';
       button.type = 'button';
@@ -80,7 +102,17 @@ async function loadGallery() {
       caption.textContent = photo.caption || 'View project';
       button.append(image, caption);
       return button;
-    }));
+    });
+    while (cards.length < 4) {
+      const placeholder = document.createElement('article');
+      placeholder.className = 'gallery-card gallery-placeholder';
+      const message = document.createElement('span');
+      message.textContent = 'More completed projects coming soon.';
+      placeholder.append(message);
+      cards.push(placeholder);
+    }
+    galleryGrid.replaceChildren(...cards);
+    requestAnimationFrame(updateGalleryControls);
   } catch (error) {
     console.warn('Gallery could not be loaded.');
   }
