@@ -4,8 +4,10 @@ import io
 import os
 import secrets
 import sqlite3
+import time
+import unicodedata
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from pathlib import Path
 
@@ -22,6 +24,9 @@ DETAIL_DIR = DATA_DIR / "uploads" / "detail"
 DB_PATH = DATA_DIR / "ldg.sqlite3"
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 MAX_IMAGE_BYTES = 12 * 1024 * 1024
+FEEDBACK_LINK_LIFETIME = timedelta(days=7)
+AUTH_FAILURE_LIMIT = 5
+AUTH_LOCK_SECONDS = 60
 
 Image.MAX_IMAGE_PIXELS = 40_000_000
 
@@ -69,12 +74,57 @@ def init_database():
                 approved INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS auth_attempts (
+                client_hash TEXT PRIMARY KEY,
+                failures INTEGER NOT NULL,
+                locked_until INTEGER NOT NULL DEFAULT 0,
+                updated_at INTEGER NOT NULL
+            );
             """
         )
 
 
 def admin_credentials_configured():
     return bool(os.environ.get("ADMIN_USERNAME") and os.environ.get("ADMIN_PASSWORD"))
+
+
+def client_auth_hash():
+    address = request.remote_addr or "unknown"
+    key = os.environ.get("ADMIN_PASSWORD", "ldg-unconfigured").encode()
+    return hmac.new(key, address.encode(), hashlib.sha256).hexdigest()
+
+
+def auth_lock_remaining(client_hash):
+    now = int(time.time())
+    with db_connect() as database:
+        row = database.execute(
+            "SELECT locked_until FROM auth_attempts WHERE client_hash = ?", (client_hash,)
+        ).fetchone()
+    return max(0, row["locked_until"] - now) if row else 0
+
+
+def record_auth_failure(client_hash):
+    now = int(time.time())
+    with db_connect() as database:
+        database.execute("BEGIN IMMEDIATE")
+        row = database.execute(
+            "SELECT failures, locked_until FROM auth_attempts WHERE client_hash = ?", (client_hash,)
+        ).fetchone()
+        failures = 0 if row and row["locked_until"] <= now and row["failures"] >= AUTH_FAILURE_LIMIT else (row["failures"] if row else 0)
+        failures += 1
+        locked_until = now + AUTH_LOCK_SECONDS if failures >= AUTH_FAILURE_LIMIT else 0
+        database.execute(
+            "INSERT INTO auth_attempts (client_hash, failures, locked_until, updated_at) VALUES (?, ?, ?, ?) "
+            "ON CONFLICT(client_hash) DO UPDATE SET failures=excluded.failures, "
+            "locked_until=excluded.locked_until, updated_at=excluded.updated_at",
+            (client_hash, failures, locked_until, now),
+        )
+    return max(0, locked_until - now)
+
+
+def clear_auth_failures(client_hash):
+    with db_connect() as database:
+        database.execute("DELETE FROM auth_attempts WHERE client_hash = ?", (client_hash,))
 
 
 def valid_admin_credentials():
@@ -94,13 +144,31 @@ def admin_required(view):
     def wrapped(*args, **kwargs):
         if not admin_credentials_configured():
             return Response("Admin access is not configured.", status=503, mimetype="text/plain")
+        client_hash = client_auth_hash()
+        remaining = auth_lock_remaining(client_hash)
+        if remaining:
+            return Response(
+                "Too many failed sign-in attempts. Try again in one minute.",
+                status=429,
+                headers={"Retry-After": str(remaining)},
+                mimetype="text/plain",
+            )
         if not valid_admin_credentials():
+            remaining = record_auth_failure(client_hash)
+            if remaining:
+                return Response(
+                    "Too many failed sign-in attempts. Try again in one minute.",
+                    status=429,
+                    headers={"Retry-After": str(remaining)},
+                    mimetype="text/plain",
+                )
             return Response(
                 "Authentication required.",
                 status=401,
                 headers={"WWW-Authenticate": 'Basic realm="LDG site administration"'},
                 mimetype="text/plain",
             )
+        clear_auth_failures(client_hash)
         return view(*args, **kwargs)
 
     return wrapped
@@ -119,6 +187,17 @@ def verify_admin_csrf():
 
 def feedback_token_hash(token):
     return hashlib.sha256(token.encode()).hexdigest()
+
+
+def feedback_csrf_token(token):
+    secret = os.environ.get("ADMIN_PASSWORD", "").encode()
+    return hmac.new(secret, f"feedback-csrf:{token}".encode(), hashlib.sha256).hexdigest()
+
+
+def clean_text(value, maximum):
+    normalized = unicodedata.normalize("NFKC", value or "")
+    without_controls = "".join(char for char in normalized if char in "\n\t" or unicodedata.category(char)[0] != "C")
+    return " ".join(without_controls.split()).strip()[:maximum]
 
 
 def public_feedback_url(token):
@@ -194,11 +273,12 @@ def feedback_form(token):
     token_hash = feedback_token_hash(token)
     with db_connect() as database:
         link = database.execute(
-            "SELECT used_at FROM feedback_links WHERE token_hash = ?", (token_hash,)
+            "SELECT created_at, used_at FROM feedback_links WHERE token_hash = ?", (token_hash,)
         ).fetchone()
     if not link:
         abort(404)
-    if link["used_at"]:
+    created_at = datetime.fromisoformat(link["created_at"])
+    if link["used_at"] or created_at <= datetime.now(timezone.utc) - FEEDBACK_LINK_LIFETIME:
         return render_template("feedback.html", expired=True), 410
 
     error = None
@@ -207,7 +287,10 @@ def feedback_form(token):
             rating = int(request.form.get("rating", "0"))
         except ValueError:
             rating = 0
-        comment = " ".join(request.form.get("comment", "").split()).strip()
+        comment = clean_text(request.form.get("comment", ""), 1000)
+        supplied_csrf = request.form.get("csrf_token", "")
+        if not hmac.compare_digest(supplied_csrf, feedback_csrf_token(token)):
+            abort(400, "Invalid form token")
         if rating not in range(1, 6):
             error = "Please choose a rating from 1 to 5."
         elif len(comment) < 10 or len(comment) > 1000:
@@ -216,9 +299,10 @@ def feedback_form(token):
             with db_connect() as database:
                 database.execute("BEGIN IMMEDIATE")
                 current = database.execute(
-                    "SELECT used_at FROM feedback_links WHERE token_hash = ?", (token_hash,)
+                    "SELECT created_at, used_at FROM feedback_links WHERE token_hash = ?", (token_hash,)
                 ).fetchone()
-                if not current or current["used_at"]:
+                expired = current and datetime.fromisoformat(current["created_at"]) <= datetime.now(timezone.utc) - FEEDBACK_LINK_LIFETIME
+                if not current or current["used_at"] or expired:
                     database.rollback()
                     return render_template("feedback.html", expired=True), 410
                 now = utc_now()
@@ -231,7 +315,7 @@ def feedback_form(token):
                 )
                 database.commit()
             return render_template("feedback.html", submitted=True)
-    return render_template("feedback.html", error=error)
+    return render_template("feedback.html", error=error, csrf_token=feedback_csrf_token(token))
 
 
 @app.get("/admin")
@@ -260,8 +344,8 @@ def admin_dashboard():
 def admin_upload_photo():
     verify_admin_csrf()
     uploaded = request.files.get("photo")
-    caption = " ".join(request.form.get("caption", "").split())[:160]
-    alt_text = " ".join(request.form.get("alt_text", "").split())[:180]
+    caption = clean_text(request.form.get("caption", ""), 160)
+    alt_text = clean_text(request.form.get("alt_text", ""), 180)
     if not uploaded or not uploaded.filename:
         abort(400, "Choose a photo")
     raw = uploaded.read(MAX_IMAGE_BYTES + 1)

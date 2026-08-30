@@ -22,6 +22,10 @@ grep -q 'id="feedback"' public/index.html
 grep -q "loading = 'lazy'" public/script.js
 grep -q '/api/gallery' app.py
 grep -q '/feedback/<token>' app.py
+grep -q 'FEEDBACK_LINK_LIFETIME = timedelta(days=7)' app.py
+grep -q 'AUTH_FAILURE_LIMIT = 5' app.py
+grep -q 'AUTH_LOCK_SECONDS = 60' app.py
+grep -q 'feedback_csrf_token' app.py
 grep -q 'Information Commissioner' public/privacy.html
 grep -q 'OVHcloud' public/privacy.html
 grep -q 'UK.*adequacy regulations' public/privacy.html

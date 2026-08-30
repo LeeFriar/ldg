@@ -22,7 +22,9 @@ The private admin page is available at `/admin`. Set `ADMIN_USERNAME` and a stro
 
 Admins can upload JPEG, PNG or WebP work photos up to 12 MB. The application strips image metadata, creates a small WebP thumbnail for the gallery, and serves the larger detail image only after a visitor selects a photo. Gallery images and feedback are stored in the branch-specific Docker volume.
 
-For each completed job, the admin can generate a single-use customer feedback link. The form does not ask for a name or email address. Submitted feedback is private until an admin approves it for display. Only a hash of the link token is stored in the database.
+For each completed job, the admin can generate a single-use customer feedback link. Links expire after seven days. The form does not ask for a name or email address. Submitted feedback is private until an admin approves it for display. Only a hash of the link token is stored in the database.
+
+Admin and feedback forms use HMAC-protected CSRF tokens. Admin authentication is rate limited per client: five failed attempts trigger a one-minute lockout shared across application workers. User text is normalized, length-limited and rendered only through auto-escaped templates or browser `textContent`.
 
 ## Deployment
 
