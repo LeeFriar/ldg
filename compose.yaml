@@ -3,7 +3,7 @@ services:
     build:
       context: .
     image: ldg:latest
-    container_name: ldg
+    container_name: ${LDG_CONTAINER_NAME:-ldg}
     restart: unless-stopped
     ports:
       - "5000:5000"

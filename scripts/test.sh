@@ -18,4 +18,7 @@ grep -q 'UK.*adequacy regulations' public/privacy.html
 grep -q 'does not set cookies' public/cookies.html
 ! grep -q 'fonts.googleapis.com' public/index.html
 grep -q 'listen 5000' nginx.conf
+grep -q 'deploy_container=dev-ldg' Jenkinsfile
+grep -q 'deploy_container=ldg' Jenkinsfile
+grep -q 'container_name: ${LDG_CONTAINER_NAME:-ldg}' compose.yaml
 echo "Static checks passed."

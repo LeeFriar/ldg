@@ -19,3 +19,6 @@ body{font-family:"Segoe UI",Arial,sans-serif}.legal-main{background:var(--cream)
 
 /* Keep desktop footer content on one compact horizontal line. */
 @media(min-width:901px){.footer-grid{grid-template-columns:1.2fr 1.15fr .65fr .85fr;align-items:end}.footer-legal{align-items:flex-start}.copyright{align-self:end}}
+
+/* Keep compact desktop and tablet footers on the same row too. */
+@media(min-width:621px) and (max-width:900px){.footer-grid{grid-template-columns:minmax(150px,1.1fr) minmax(200px,1.25fr) minmax(90px,.65fr) minmax(110px,.8fr);gap:clamp(14px,2.4vw,28px);align-items:end}.footer-grid img{width:min(210px,100%)}.footer-legal{align-items:flex-start}.copyright{grid-column:auto;text-align:right;align-self:end}}
