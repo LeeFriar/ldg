@@ -120,6 +120,14 @@ async function loadReviews() {
     if (!response.ok) throw new Error('Reviews unavailable');
     const reviews = await response.json();
     if (!reviews.length) return;
+    const average = reviews.reduce((total, review) => total + review.rating, 0) / reviews.length;
+    const summary = document.querySelector('#review-summary');
+    if (summary) {
+      const roundedBulbs = Math.round(average);
+      summary.querySelector('span').textContent = `${'💡'.repeat(roundedBulbs)}${'○'.repeat(5 - roundedBulbs)}`;
+      summary.querySelector('strong').textContent = `${average.toFixed(1).replace('.0', '')}/5`;
+      summary.setAttribute('aria-label', `${average.toFixed(1)} out of 5 light bulbs`);
+    }
     const requestedLimit = Number.parseInt(grid.dataset.limit || '0', 10);
     const visibleReviews = requestedLimit > 0 ? reviews.slice(0, requestedLimit) : reviews;
     grid.replaceChildren(...visibleReviews.map((review) => {
@@ -127,13 +135,16 @@ async function loadReviews() {
       card.className = 'review-card';
       const stars = document.createElement('p');
       stars.className = 'review-stars';
-      stars.setAttribute('aria-label', `${review.rating} out of 5 stars`);
-      stars.textContent = `${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}`;
+      stars.setAttribute('aria-label', `${review.rating} out of 5 light bulbs`);
+      stars.textContent = `${'💡'.repeat(review.rating)}${'○'.repeat(5 - review.rating)}`;
       const quote = document.createElement('blockquote');
       quote.textContent = review.comment;
       const source = document.createElement('p');
       source.className = 'review-source-label';
-      source.textContent = 'Anonymous customer';
+      const date = new Date(review.created_at).toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+      });
+      source.textContent = `${review.is_test ? 'Test review' : 'Anonymous customer'} · ${date}`;
       card.append(stars, quote, source);
       return card;
     }));

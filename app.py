@@ -44,6 +44,14 @@ STATIC_GALLERY = (
         "alt_text": "Electric fire installation in progress at a domestic property",
     },
 )
+STATIC_REVIEWS = (
+    {
+        "rating": 5,
+        "comment": "I never knew a n electrician could use a dust pan and brush. Good clean work from Lloyd fixing my lamp shade.",
+        "created_at": "2026-08-30T12:00:00+00:00",
+        "is_test": True,
+    },
+)
 
 Image.MAX_IMAGE_PIXELS = 40_000_000
 
@@ -276,10 +284,19 @@ def feedback_api():
     limit = 500 if request.args.get("all") == "1" else 12
     with db_connect() as database:
         rows = database.execute(
-            "SELECT rating, comment FROM feedback WHERE approved = 1 ORDER BY created_at DESC LIMIT ?",
+            "SELECT rating, comment, created_at FROM feedback WHERE approved = 1 ORDER BY created_at DESC LIMIT ?",
             (limit,),
         ).fetchall()
-    response = jsonify([{"rating": row["rating"], "comment": row["comment"]} for row in rows])
+    stored_reviews = [
+        {
+            "rating": row["rating"],
+            "comment": row["comment"],
+            "created_at": row["created_at"],
+            "is_test": False,
+        }
+        for row in rows
+    ]
+    response = jsonify(stored_reviews + list(STATIC_REVIEWS))
     response.headers["Cache-Control"] = "public, max-age=60"
     return response
 
