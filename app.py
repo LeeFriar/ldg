@@ -287,7 +287,13 @@ def uploaded_image(kind, photo_id):
         abort(404)
     directory = THUMB_DIR if kind == "thumb" else DETAIL_DIR
     max_age = 86400 if kind == "thumb" else 2592000
-    return send_from_directory(directory, f"{photo_id}.webp", max_age=max_age, conditional=True)
+    return send_from_directory(
+        directory,
+        f"{photo_id}.webp",
+        max_age=max_age,
+        conditional=True,
+        mimetype="image/webp",
+    )
 
 
 @app.route("/feedback/<token>", methods=["GET", "POST"])
@@ -432,7 +438,10 @@ def index():
 
 @app.get("/<path:path>")
 def public_file(path):
-    return send_from_directory(PUBLIC_DIR, path)
+    response = send_from_directory(PUBLIC_DIR, path)
+    if Path(path).suffix.lower() == ".webp":
+        response.mimetype = "image/webp"
+    return response
 
 
 init_database()

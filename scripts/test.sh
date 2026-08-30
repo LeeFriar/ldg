@@ -26,6 +26,7 @@ grep -q 'id="work"' public/index.html
 grep -q "loading = 'lazy'" public/script.js
 grep -q '/api/gallery' app.py
 grep -q 'STATIC_GALLERY' app.py
+grep -q 'mimetype="image/webp"' app.py
 grep -q '/feedback/<token>' app.py
 grep -q 'FEEDBACK_LINK_LIFETIME = timedelta(days=7)' app.py
 grep -q 'AUTH_FAILURE_LIMIT = 5' app.py
