@@ -243,9 +243,10 @@ def health():
 
 @app.get("/api/gallery")
 def gallery_api():
+    limit = 500 if request.args.get("all") == "1" else 24
     with db_connect() as database:
         rows = database.execute(
-            "SELECT id, caption, alt_text FROM photos ORDER BY created_at DESC LIMIT 24"
+            "SELECT id, caption, alt_text FROM photos ORDER BY created_at DESC LIMIT ?", (limit,)
         ).fetchall()
     uploaded_photos = [
             {
@@ -272,9 +273,11 @@ def gallery_api():
 
 @app.get("/api/feedback")
 def feedback_api():
+    limit = 500 if request.args.get("all") == "1" else 12
     with db_connect() as database:
         rows = database.execute(
-            "SELECT rating, comment FROM feedback WHERE approved = 1 ORDER BY created_at DESC LIMIT 12"
+            "SELECT rating, comment FROM feedback WHERE approved = 1 ORDER BY created_at DESC LIMIT ?",
+            (limit,),
         ).fetchall()
     response = jsonify([{"rating": row["rating"], "comment": row["comment"]} for row in rows])
     response.headers["Cache-Control"] = "public, max-age=60"

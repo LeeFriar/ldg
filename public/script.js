@@ -82,7 +82,8 @@ workDialog?.addEventListener('close', () => {
 async function loadGallery() {
   if (!galleryGrid) return;
   try {
-    const response = await fetch('/api/gallery', { headers: { Accept: 'application/json' } });
+    const galleryEndpoint = galleryGrid.classList.contains('all-gallery-grid') ? '/api/gallery?all=1' : '/api/gallery';
+    const response = await fetch(galleryEndpoint, { headers: { Accept: 'application/json' } });
     if (!response.ok) throw new Error('Gallery unavailable');
     const photos = await response.json();
     if (!photos.length) return;
@@ -118,4 +119,36 @@ async function loadGallery() {
   }
 }
 
+async function loadReviews() {
+  const grid = document.querySelector('#review-grid');
+  if (!grid) return;
+  try {
+    const reviewsEndpoint = grid.dataset.limit === '0' ? '/api/feedback?all=1' : '/api/feedback';
+    const response = await fetch(reviewsEndpoint, { headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error('Reviews unavailable');
+    const reviews = await response.json();
+    if (!reviews.length) return;
+    const requestedLimit = Number.parseInt(grid.dataset.limit || '0', 10);
+    const visibleReviews = requestedLimit > 0 ? reviews.slice(0, requestedLimit) : reviews;
+    grid.replaceChildren(...visibleReviews.map((review) => {
+      const card = document.createElement('article');
+      card.className = 'review-card';
+      const stars = document.createElement('p');
+      stars.className = 'review-stars';
+      stars.setAttribute('aria-label', `${review.rating} out of 5 stars`);
+      stars.textContent = `${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}`;
+      const quote = document.createElement('blockquote');
+      quote.textContent = review.comment;
+      const source = document.createElement('p');
+      source.className = 'review-source-label';
+      source.textContent = 'Anonymous customer';
+      card.append(stars, quote, source);
+      return card;
+    }));
+  } catch (error) {
+    console.warn('Customer reviews could not be loaded.');
+  }
+}
+
 loadGallery();
+loadReviews();

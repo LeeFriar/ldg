@@ -12,6 +12,8 @@ test -f public/styles.css
 test -f public/brand/favicon.ico
 test -f public/privacy.html
 test -f public/cookies.html
+test -f public/gallery.html
+test -f public/reviews.html
 test -x scripts/compose.sh || chmod +x scripts/compose.sh
 grep -q 'Lloyd Garland' public/index.html
 grep -q 'lloyd@ldg-electrical.co.uk' public/index.html
@@ -24,6 +26,9 @@ grep -q '/work/thumb/kitchen-electrical-accessories.webp' public/index.html
 grep -q 'data-gallery-detail' public/index.html
 grep -q 'id="gallery-previous"' public/index.html
 grep -q 'id="gallery-next"' public/index.html
+grep -q 'id="reviews"' public/index.html
+grep -q '/gallery.html' public/index.html
+grep -q '/reviews.html' public/index.html
 grep -q 'grid-auto-columns:calc((100% - 42px)/4)' public/styles.css
 ! grep -q 'id="feedback"' public/index.html
 ! grep -q 'feedback-grid' public/index.html
