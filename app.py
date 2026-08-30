@@ -27,6 +27,23 @@ MAX_IMAGE_BYTES = 12 * 1024 * 1024
 FEEDBACK_LINK_LIFETIME = timedelta(days=7)
 AUTH_FAILURE_LIMIT = 5
 AUTH_LOCK_SECONDS = 60
+STATIC_GALLERY = (
+    {
+        "id": "kitchen-electrical-accessories",
+        "caption": "Kitchen electrical installation",
+        "alt_text": "Neatly installed kitchen sockets and switches above a tiled worktop",
+    },
+    {
+        "id": "hob-and-oven-installation",
+        "caption": "Hob and oven installation",
+        "alt_text": "Installed electric hob and built-in oven in a finished kitchen",
+    },
+    {
+        "id": "electric-fire-installation",
+        "caption": "Electric fire installation",
+        "alt_text": "Electric fire installation in progress at a domestic property",
+    },
+)
 
 Image.MAX_IMAGE_PIXELS = 40_000_000
 
@@ -230,8 +247,7 @@ def gallery_api():
         rows = database.execute(
             "SELECT id, caption, alt_text FROM photos ORDER BY created_at DESC LIMIT 24"
         ).fetchall()
-    response = jsonify(
-        [
+    uploaded_photos = [
             {
                 "id": row["id"],
                 "caption": row["caption"],
@@ -241,7 +257,15 @@ def gallery_api():
             }
             for row in rows
         ]
-    )
+    bundled_photos = [
+        {
+            **photo,
+            "thumbnail_url": url_for("public_file", path=f"work/thumb/{photo['id']}.webp"),
+            "detail_url": url_for("public_file", path=f"work/detail/{photo['id']}.webp"),
+        }
+        for photo in STATIC_GALLERY
+    ]
+    response = jsonify(uploaded_photos + bundled_photos)
     response.headers["Cache-Control"] = "public, max-age=60"
     return response
 

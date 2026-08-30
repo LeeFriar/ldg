@@ -5,6 +5,8 @@ test -f app.py
 test -f requirements.txt
 test -f templates/admin.html
 test -f templates/feedback.html
+test -f public/work/thumb/kitchen-electrical-accessories.webp
+test -f public/work/detail/kitchen-electrical-accessories.webp
 test -f public/index.html
 test -f public/styles.css
 test -f public/brand/favicon.ico
@@ -22,6 +24,7 @@ grep -q 'id="feedback"' public/index.html
 grep -q 'https://www.mybuilder.com/profile/ldg-electrical' public/index.html
 grep -q "loading = 'lazy'" public/script.js
 grep -q '/api/gallery' app.py
+grep -q 'STATIC_GALLERY' app.py
 grep -q '/feedback/<token>' app.py
 grep -q 'FEEDBACK_LINK_LIFETIME = timedelta(days=7)' app.py
 grep -q 'AUTH_FAILURE_LIMIT = 5' app.py
