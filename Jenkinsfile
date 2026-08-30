@@ -15,7 +15,7 @@ pipeline {
                     docker rm -f ldg-test 2>/dev/null || true
                     docker run -d --name ldg-test ldg:latest
                     for i in $(seq 1 15); do
-                      docker exec ldg-test wget -qO- http://127.0.0.1:5000/health | grep -q healthy && exit 0
+                      docker exec ldg-test python -c "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:5000/health').read() == b'healthy\\n'" && exit 0
                       sleep 1
                     done
                     exit 1
@@ -28,8 +28,8 @@ pipeline {
             steps {
                 sh '''
                     case "$BRANCH_NAME" in
-                      main) deploy_container=ldg ;;
-                      dev) deploy_container=dev-ldg ;;
+                      main) deploy_container=ldg; data_volume=ldg-data ;;
+                      dev) deploy_container=dev-ldg; data_volume=dev-ldg-data ;;
                       *)
                         echo "Deployment is not configured for branch: $BRANCH_NAME" >&2
                         exit 1
@@ -48,6 +48,10 @@ pipeline {
                       --name "$deploy_container" \
                       --restart unless-stopped \
                       --network lee-net \
+                      --env ADMIN_USERNAME \
+                      --env ADMIN_PASSWORD \
+                      --env PUBLIC_BASE_URL \
+                      --volume "$data_volume:/data" \
                       ldg:latest
                     docker network connect lee-net-1 "$deploy_container"
                     docker image prune -f
@@ -64,7 +68,7 @@ pipeline {
                       *) exit 1 ;;
                     esac
                     for i in $(seq 1 15); do
-                      docker exec "$verify_container" wget -qO- http://127.0.0.1:5000/health | grep -q healthy && exit 0
+                      docker exec "$verify_container" python -c "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:5000/health').read() == b'healthy\\n'" && exit 0
                       sleep 1
                     done
                     exit 1

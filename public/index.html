@@ -25,7 +25,7 @@
       </a>
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation"><span></span><span></span></button>
       <nav id="site-nav" aria-label="Main navigation">
-        <a href="#services">Services</a><a href="#about">About</a><a href="#qualifications">Qualifications</a>
+        <a href="#services">Services</a><a href="#work">Our work</a><a href="#about">About</a><a href="#qualifications">Qualifications</a>
         <a class="nav-cta" href="#contact">Get in touch</a>
       </nav>
     </div>
@@ -44,7 +44,7 @@
             <a class="button button-ghost" href="#services">Explore services</a>
           </div>
           <div class="trust-row" aria-label="Key qualifications">
-            <span><b>18th</b> Edition</span><span><b>ECS</b> Gold Card</span><span><b>NVQ</b> Level 3</span>
+            <span><b>NVQ</b> Level 3</span><span><b>ECS</b> Gold Card</span><span><b>18th</b> Edition</span>
           </div>
         </div>
         <div class="hero-mark reveal" aria-hidden="true"><img src="/brand/ldg-mark.png" alt=""></div>
@@ -82,6 +82,24 @@
       </div>
     </section>
 
+    <section class="work section" id="work">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">Recent projects</p><h2>Work completed with care.</h2><p>Selected examples of domestic and commercial electrical work completed by LDG Electrical.</p></div>
+        <div class="gallery-grid" id="gallery-grid" aria-live="polite">
+          <p class="empty-state">Project photos will appear here soon.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="feedback section" id="feedback">
+      <div class="container">
+        <div class="section-heading reveal"><p class="eyebrow">Customer feedback</p><h2>What customers say.</h2><p>Anonymous feedback submitted after completed work.</p></div>
+        <div class="feedback-grid" id="feedback-grid" aria-live="polite">
+          <p class="empty-state">Customer feedback will appear here soon.</p>
+        </div>
+      </div>
+    </section>
+
     <section class="contact section" id="contact">
       <div class="container contact-card reveal">
         <div><p class="eyebrow">Start a conversation</p><h2>Have an electrical project in mind?</h2><p>Speak directly with Lloyd to discuss the work you need.</p></div>
@@ -92,6 +110,12 @@
       </div>
     </section>
   </main>
+
+  <dialog class="work-dialog" id="work-dialog" aria-labelledby="work-dialog-caption">
+    <button class="dialog-close" type="button" aria-label="Close image">×</button>
+    <img id="work-dialog-image" alt="">
+    <p id="work-dialog-caption"></p>
+  </dialog>
 
   <footer><div class="container footer-grid"><img src="/brand/ldg-logo-header.png" alt="LDG Electrical" width="640" height="193"><div><p>Lloyd Garland</p><a href="tel:+447587869215">07587 869215</a><a href="mailto:lloyd@ldg-electrical.co.uk">lloyd@ldg-electrical.co.uk</a></div><div class="footer-legal"><a href="/privacy.html">Privacy notice</a><a href="/cookies.html">Cookie notice</a></div><p class="copyright">© <span id="year"></span> LDG Electrical.<br>All rights reserved.</p></div></footer>
   <script src="/script.js" defer></script>

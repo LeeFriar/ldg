@@ -5,11 +5,21 @@ services:
     image: ldg:latest
     container_name: ${LDG_CONTAINER_NAME:-ldg}
     restart: unless-stopped
+    environment:
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
+    volumes:
+      - app-data:/data
     expose:
       - "5000"
     networks:
       - lee-net
       - lee-net-1
+
+volumes:
+  app-data:
+    name: ${LDG_DATA_VOLUME:-ldg-data}
 
 networks:
   lee-net:
