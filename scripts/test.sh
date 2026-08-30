@@ -21,4 +21,7 @@ grep -q 'listen 5000' nginx.conf
 grep -q 'deploy_container=dev-ldg' Jenkinsfile
 grep -q 'deploy_container=ldg' Jenkinsfile
 grep -q 'container_name: ${LDG_CONTAINER_NAME:-ldg}' compose.yaml
+grep -q 'expose:' compose.yaml
+! grep -q -- '-p 5000:5000' Jenkinsfile
+! grep -q '5000:5000' compose.yaml
 echo "Static checks passed."

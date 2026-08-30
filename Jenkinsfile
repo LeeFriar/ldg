@@ -13,9 +13,9 @@ pipeline {
             steps {
                 sh '''
                     docker rm -f ldg-test 2>/dev/null || true
-                    docker run -d --name ldg-test -p 15000:5000 ldg:latest
+                    docker run -d --name ldg-test ldg:latest
                     for i in $(seq 1 15); do
-                      wget -qO- http://127.0.0.1:15000/health | grep -q healthy && exit 0
+                      docker exec ldg-test wget -qO- http://127.0.0.1:5000/health | grep -q healthy && exit 0
                       sleep 1
                     done
                     exit 1
@@ -28,14 +28,8 @@ pipeline {
             steps {
                 sh '''
                     case "$BRANCH_NAME" in
-                      main)
-                        deploy_container=ldg
-                        other_container=dev-ldg
-                        ;;
-                      dev)
-                        deploy_container=dev-ldg
-                        other_container=ldg
-                        ;;
+                      main) deploy_container=ldg ;;
+                      dev) deploy_container=dev-ldg ;;
                       *)
                         echo "Deployment is not configured for branch: $BRANCH_NAME" >&2
                         exit 1
@@ -48,19 +42,12 @@ pipeline {
                     # docker-compose 1.29 cannot recreate images produced by
                     # newer Docker engines (KeyError: ContainerConfig). This
                     # stateless service is replaced directly and predictably.
-                    # Only one branch can own host port 5000 at a time.
                     docker rm -f "$deploy_container" 2>/dev/null || true
-                    docker rm -f "$other_container" 2>/dev/null || true
-                    stale_ids=$(docker ps -aq --filter label=com.docker.compose.service=ldg)
-                    if [ -n "$stale_ids" ]; then
-                      docker rm -f $stale_ids
-                    fi
 
                     docker run -d \
                       --name "$deploy_container" \
                       --restart unless-stopped \
                       --network lee-net \
-                      -p 5000:5000 \
                       ldg:latest
                     docker network connect lee-net-1 "$deploy_container"
                     docker image prune -f
@@ -69,7 +56,20 @@ pipeline {
         }
         stage('Verify') {
             when { anyOf { branch 'main'; branch 'dev' } }
-            steps { sh 'wget -qO- http://127.0.0.1:5000/health | grep -q healthy' }
+            steps {
+                sh '''
+                    case "$BRANCH_NAME" in
+                      main) verify_container=ldg ;;
+                      dev) verify_container=dev-ldg ;;
+                      *) exit 1 ;;
+                    esac
+                    for i in $(seq 1 15); do
+                      docker exec "$verify_container" wget -qO- http://127.0.0.1:5000/health | grep -q healthy && exit 0
+                      sleep 1
+                    done
+                    exit 1
+                '''
+            }
         }
     }
 }
