@@ -104,14 +104,6 @@ async function loadGallery() {
       button.append(image, caption);
       return button;
     });
-    while (cards.length < 4) {
-      const placeholder = document.createElement('article');
-      placeholder.className = 'gallery-card gallery-placeholder';
-      const message = document.createElement('span');
-      message.textContent = 'More completed projects coming soon.';
-      placeholder.append(message);
-      cards.push(placeholder);
-    }
     galleryGrid.replaceChildren(...cards);
     requestAnimationFrame(updateGalleryControls);
   } catch (error) {
