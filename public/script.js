@@ -73,33 +73,4 @@ async function loadGallery() {
   }
 }
 
-async function loadFeedback() {
-  const grid = document.querySelector('#feedback-grid');
-  if (!grid) return;
-  try {
-    const response = await fetch('/api/feedback', { headers: { Accept: 'application/json' } });
-    if (!response.ok) throw new Error('Feedback unavailable');
-    const entries = await response.json();
-    if (!entries.length) return;
-    grid.replaceChildren(...entries.map((entry) => {
-      const article = document.createElement('article');
-      article.className = 'feedback-card';
-      const stars = document.createElement('p');
-      stars.className = 'feedback-stars';
-      stars.setAttribute('aria-label', `${entry.rating} out of 5 stars`);
-      stars.textContent = `${'★'.repeat(entry.rating)}${'☆'.repeat(5 - entry.rating)}`;
-      const quote = document.createElement('blockquote');
-      quote.textContent = entry.comment;
-      const label = document.createElement('p');
-      label.className = 'feedback-label';
-      label.textContent = 'Anonymous customer';
-      article.append(stars, quote, label);
-      return article;
-    }));
-  } catch (error) {
-    console.warn('Feedback could not be loaded.');
-  }
-}
-
 loadGallery();
-loadFeedback();

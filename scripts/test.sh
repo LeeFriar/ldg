@@ -20,8 +20,9 @@ grep -q 'tel:+447587869215' public/index.html
 grep -q 'https://www.ldg-electrical.co.uk/' public/index.html
 grep -q '<span><b>NVQ</b> Level 3</span><span><b>ECS</b> Gold Card</span><span><b>18th</b> Edition</span>' public/index.html
 grep -q 'id="work"' public/index.html
-grep -q 'id="feedback"' public/index.html
-grep -q 'https://www.mybuilder.com/profile/ldg-electrical' public/index.html
+! grep -q 'id="feedback"' public/index.html
+! grep -q 'feedback-grid' public/index.html
+! grep -q 'loadFeedback' public/script.js
 grep -q "loading = 'lazy'" public/script.js
 grep -q '/api/gallery' app.py
 grep -q 'STATIC_GALLERY' app.py
