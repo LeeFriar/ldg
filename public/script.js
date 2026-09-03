@@ -137,6 +137,13 @@ async function loadReviews() {
       stars.className = 'review-stars';
       stars.setAttribute('aria-label', `${review.rating} out of 5 light bulbs`);
       stars.textContent = `${'💡'.repeat(review.rating)}${'○'.repeat(5 - review.rating)}`;
+      if (review.title) {
+        const title = document.createElement('h3');
+        title.textContent = review.title;
+        card.append(stars, title);
+      } else {
+        card.append(stars);
+      }
       const quote = document.createElement('blockquote');
       quote.textContent = review.comment;
       const source = document.createElement('p');
@@ -145,7 +152,7 @@ async function loadReviews() {
         day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
       });
       source.textContent = `${review.is_test ? 'Test review' : 'Anonymous customer'} · ${date}`;
-      card.append(stars, quote, source);
+      card.append(quote, source);
       return card;
     }));
   } catch (error) {

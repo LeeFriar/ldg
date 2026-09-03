@@ -29,7 +29,9 @@ grep -q 'id="gallery-next"' public/index.html
 grep -q 'id="reviews"' public/index.html
 grep -q 'id="review-summary"' public/index.html
 grep -q 'STATIC_REVIEWS' app.py
-grep -q 'I never knew a n electrician could use a dust pan and brush' app.py
+grep -q 'Install kitchen and bathroom light' app.py
+grep -q 'I originally wanted new single lights in bathroom and kitchen' app.py
+! grep -q 'Paula Hardy\|Portsmouth' app.py
 grep -q '/gallery.html' public/index.html
 grep -q '/reviews.html' public/index.html
 grep -q 'grid-auto-columns:calc((100% - 42px)/4)' public/styles.css

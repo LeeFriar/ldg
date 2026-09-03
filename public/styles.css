@@ -42,3 +42,5 @@ body{font-family:"Segoe UI",Arial,sans-serif}.legal-main{background:var(--cream)
 .contact{background:#fff}.contact-card{background:var(--gold)}.contact-card .eyebrow{color:#725a23}
 
 .review-summary{display:flex;align-items:center;gap:12px;margin:9px 0 0;color:#b38419}.review-summary span{letter-spacing:.1em;font-size:1.05rem}.review-summary strong{color:var(--navy);font-size:.88rem}.review-stars{font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif;letter-spacing:.08em}
+
+.review-card h3{font-size:1rem;line-height:1.35;margin:14px 0 0}.review-card h3+blockquote{margin-top:16px}

@@ -46,10 +46,11 @@ STATIC_GALLERY = (
 )
 STATIC_REVIEWS = (
     {
+        "title": "Install kitchen and bathroom light",
         "rating": 5,
-        "comment": "I never knew a n electrician could use a dust pan and brush. Good clean work from Lloyd fixing my lamp shade.",
+        "comment": "I originally wanted new single lights in bathroom and kitchen but Lloyd suggested spotlights may be better for what I was looking to achieve. I’m glad I had them. Lloyd was quick to reply to my initial job. He came round and looked at the job and gave me a time frame and cost. Lloyd did a great job and cleaned up after, which is a bonus. He also fixed 2 lamps for me. Nothing was too much. I would highly recommend him and would book him again.",
         "created_at": "2026-08-30T12:00:00+00:00",
-        "is_test": True,
+        "is_test": False,
     },
 )
 
@@ -290,6 +291,7 @@ def feedback_api():
     stored_reviews = [
         {
             "rating": row["rating"],
+            "title": "",
             "comment": row["comment"],
             "created_at": row["created_at"],
             "is_test": False,
