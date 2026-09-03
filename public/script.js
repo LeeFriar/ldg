@@ -165,7 +165,6 @@ async function loadReviews() {
           more.setAttribute('aria-expanded', String(expanded));
         };
         more.addEventListener('click', () => setExpanded(!card.classList.contains('is-expanded')));
-        card.addEventListener('mouseenter', () => setExpanded(true));
         card.addEventListener('mouseleave', () => setExpanded(false));
         card.append(more);
       }
