@@ -28,6 +28,8 @@ grep -q 'id="gallery-previous"' public/index.html
 grep -q 'id="gallery-next"' public/index.html
 grep -q 'id="reviews"' public/index.html
 grep -q 'id="review-summary"' public/index.html
+grep -q 'review-more' public/script.js
+grep -q 'all-review-grid{grid-template-columns:1fr}' public/styles.css
 grep -q 'STATIC_REVIEWS' app.py
 grep -q 'Install kitchen and bathroom light' app.py
 grep -q 'I originally wanted new single lights in bathroom and kitchen' app.py

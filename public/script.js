@@ -153,6 +153,22 @@ async function loadReviews() {
       });
       source.textContent = `${review.is_test ? 'Test review' : 'Anonymous customer'} · ${date}`;
       card.append(quote, source);
+      if (requestedLimit > 0) {
+        const more = document.createElement('button');
+        more.className = 'review-more';
+        more.type = 'button';
+        more.textContent = 'Show more';
+        more.setAttribute('aria-expanded', 'false');
+        const setExpanded = (expanded) => {
+          card.classList.toggle('is-expanded', expanded);
+          more.textContent = expanded ? 'Show less' : 'Show more';
+          more.setAttribute('aria-expanded', String(expanded));
+        };
+        more.addEventListener('click', () => setExpanded(!card.classList.contains('is-expanded')));
+        card.addEventListener('mouseenter', () => setExpanded(true));
+        card.addEventListener('mouseleave', () => setExpanded(false));
+        card.append(more);
+      }
       return card;
     }));
   } catch (error) {
